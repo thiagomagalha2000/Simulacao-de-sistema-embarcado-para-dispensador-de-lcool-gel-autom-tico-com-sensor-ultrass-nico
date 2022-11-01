@@ -1,0 +1,45 @@
+#include <ESP32Servo.h>
+#include "DHTesp.h"
+
+const int servoPin = 18;
+Servo servo;
+const int DHT_PIN = 15;
+DHTesp dhtSensor;
+
+int DISTANCIA = 0;
+int pinLed=2;
+int pinEco=12;
+int pinGatillo=13;
+int pos = 0;
+
+long readUltrasonicDistance(int triggerPin, int echoPin)
+{
+  pinMode(triggerPin, OUTPUT);
+  digitalWrite(triggerPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(triggerPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(triggerPin, LOW);
+  pinMode(echoPin, INPUT);
+  return pulseIn(echoPin, HIGH);
+}
+
+void setup() {
+  servo.attach(servoPin, 500, 2400);
+}
+
+void loop() {
+  DISTANCIA = 0.01723 * readUltrasonicDistance(pinGatillo, pinEco);
+  if (DISTANCIA < 20) {
+    for (pos = 90; pos >= 0; pos -= 1) {
+      servo.write(pos);
+      delay(15);
+    }
+    for (pos = 0; pos <= 90; pos += 1) {
+      servo.write(pos);
+      delay(15);
+    }
+    delay(3000);
+    DISTANCIA = 0;
+  }
+}
